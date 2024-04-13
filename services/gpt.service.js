@@ -12,11 +12,10 @@ class GptService {
   generateGrammarTask(locations) {
     const location = locations.join(", ");
     return `Create three grammar exercises for a Kazakh language learner at a ${location}. Each exercise should include:
-            1. An original sentence in Russian related to a typical activity at a ${location}, no longer than 8 words.
+            1. An original sentence in Russian related to a typical activity at a ${location}, no longer than 10 words.
             2. A translation of this sentence into Kazakh.
-            3. A list of partial words which includes all the words from the Kazakh sentence and an additional 2-3 unrelated words.
 
-            The exercises should be returned as an array of objects, each object having the fields: originalSentence, kazakhSentence, and partials. The response should be entirely in Kazakh.`;
+            The exercises should be returned as an array of objects, each object having the fields: originalSentence and kazakhSentence. The response should be entirely in Kazakh.`;
   }
 
   generateSpeakingTask(locations) {
