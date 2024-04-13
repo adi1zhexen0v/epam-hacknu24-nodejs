@@ -1,3 +1,4 @@
+import { GoogleCloudStorageService } from "../services/file.service.js";
 import { SpeechService } from "../services/speech.service.js";
 
 export async function transcribeAudio(req, res) {
@@ -6,14 +7,15 @@ export async function transcribeAudio(req, res) {
       res.status(400).json({ result: null, error: "Загрузите аудиофайл" });
     }
 
+    const fileStorage = new GoogleCloudStorageService();
+    await fileStorage.uploadFile(req.file, "audio");
+
     const speechService = new SpeechService();
-    const transcription = await speechService.transcribe(req.file);
+    const result = await speechService.transcribe(req.file);
 
-    if (typeof transcription === Error) {
-      res.status(400).json({ result: null, error: transcription.toString() });
-    }
+    console.log();
 
-    res.json({ result: transcription, error: null });
+    res.json({ result, error: null });
   } catch (error) {
     res.status(500).json({ result: null, error: error.toString() });
   }
