@@ -1,9 +1,4 @@
 import { SpeechClient } from "@google-cloud/speech";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegStatic from "ffmpeg-static";
-import { promises as fs } from "fs";
-import { tmpdir } from "os";
-import { join } from "path";
 
 const {
   GOOGLE_CLOUD_PROJECT_ID,
@@ -16,7 +11,6 @@ const {
 export class SpeechService {
   constructor() {
     const privateKey = GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n");
-    ffmpeg.setFfmpegPath(ffmpegStatic);
 
     this.speechClient = new SpeechClient({
       credentials: {
@@ -29,29 +23,18 @@ export class SpeechService {
     });
   }
 
-  async convertToMp3(inputPath, outputPath) {
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .toFormat("mp3")
-        .audioFrequency(48000)
-        .on("error", (err) => {
-          console.error(
-            "An error occurred during the conversion:",
-            err.message
-          );
-          reject(err);
-        })
-        .on("end", () => {
-          console.log("File has been converted to MP3 format.");
-          resolve();
-        })
-        .save(outputPath);
-    });
-  }
-
   async transcribe(file) {
+    if (!file.buffer) {
+      throw new Error("File buffer is empty or undefined.");
+    }
+    const audioContent = file.buffer.toString("base64");
+
+    if (!audioContent) {
+      throw new Error("Audio content is empty after base64 encoding.");
+    }
+
     const audio = {
-      content: file.buffer.toString("base64"),
+      content: audioContent,
     };
     const config = {
       encoding: "MP3",
