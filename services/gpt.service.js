@@ -101,6 +101,7 @@ class GptService {
 
     try {
       const response = await axios.post(this.apiUrl, data, { headers });
+      console.log(response.data.choices[0].message);
       return {
         result: JSON.parse(response.data.choices[0].message.content),
         error: null,
@@ -109,6 +110,72 @@ class GptService {
       return { result: null, error: new Error(error.toString()) };
     }
   }
+
+  async createTestTasksFromText(baseText) {
+    const prompt = `Based on the following text: "${baseText}" create three multiple-choice questions. Each question should be related to the text and include four options. Each question JSON object should have fields: question, options (an array of four strings), and correctAnswer. The response should be entirely in Kazakh`;
+    const data = {
+      model: "gpt-4-turbo",
+      messages: [
+        {
+          role: "system",
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+    };
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.apiKey}`,
+    };
+
+    try {
+      const response = await axios.post(this.apiUrl, data, { headers });
+      console.log(response.data.choices[0].message);
+      const tasks = JSON.parse(response.data.choices[0].message.content);
+      return {
+        result: tasks,
+        error: null,
+      };
+    } catch (error) {
+      console.error("Ошибка при создании тестовых заданий: ", error);
+      return { result: null, error: new Error(error.toString()) };
+    }
+  }
+
+  async createPhotoTask(locations) {
+    const location = locations.join(", ");
+    const prompt = `Generate a brief task in Kazakh for taking a photo at a ${location} that can be used to create questions later.  The task should be no more than 20 words. The response should be JSON object with field 'task'. The response should be entirely in Kazakh.`;
+    const data = {
+      model: "gpt-4-turbo",
+      messages: [
+        {
+          role: "system",
+          content: prompt,
+        },
+      ],
+      temperature: 0.5,
+    };
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.apiKey}`,
+    };
+
+    try {
+      const response = await axios.post(this.apiUrl, data, { headers });
+      const task = JSON.parse(response.data.choices[0].message.content).task;
+      return {
+        task: task,
+        error: null,
+      };
+    } catch (error) {
+      console.error("Ошибка при создании задания на фотографирование:", error);
+      return { task: null, error: new Error(error.toString()) };
+    }
+  }
 }
+
+//The response should be entirely in Kazakh
 
 export default new GptService();

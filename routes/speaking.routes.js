@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   checkSpeakingTask,
-  createSpeakingTask,
+  createSpeakingTask
 } from "../controllers/speaking.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { authUser } from "../middlewares/auth.middleware.js";
